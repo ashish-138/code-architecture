@@ -1,5 +1,5 @@
  const errorHandler = (err, _, res, next) => {
-    const statusCode = err.statusCode || 500;
+    const statusCode = err.status || 500;
 
     console.log("Error",err.stack)
 
