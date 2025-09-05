@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
+import errorHandler from '../src/middlewares/error.middleware.js'
 
 
 const app = express()
@@ -21,5 +22,5 @@ import userRouter from '../src/routes/user.routes.js'
 app.use("/api/v1/user", userRouter)
 
 
-
+app.use(errorHandler)
 export {app}
