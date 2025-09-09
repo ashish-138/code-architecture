@@ -22,7 +22,7 @@ const API = async ( method, endpoint, body = null, customHeaders = {}) =>{
 
     } catch (error) {
         console.log("API Error", error)
-        return error
+        throw error
     }
 }
 
