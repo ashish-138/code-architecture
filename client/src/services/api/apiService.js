@@ -15,6 +15,7 @@ const API = async ( method, endpoint, body = null, customHeaders = {}) =>{
                 ...customHeaders
             },
             data:body
+            withCredentials: true,
         }
 
         const response = await axios(config)
