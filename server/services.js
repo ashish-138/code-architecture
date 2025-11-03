@@ -707,3 +707,207 @@ setInterval(async () => {
 
 
 
+client side
+package 
+{
+  "name": "doctor-patient-client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vite"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
+
+
+
+
+
+
+
+app.api.js
+import axios from 'axios';
+const api = axios.create({ baseURL: '/api/v1' });
+export default api;
+
+
+
+
+
+app.jsx
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
+import DoctorSteps from './pages/DoctorSteps';
+import DoctorList from './pages/DoctorList';
+
+export default function App(){
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<DoctorList/>} />
+        <Route path='/signin' element={<SignIn/>} />
+        <Route path='/signup' element={<SignUp/>} />
+        <Route path='/doctor/steps' element={<DoctorSteps/>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+signup
+import React, { useState } from 'react';
+import api from '../api/api';
+
+export default function SignUp(){
+  const [form, setForm] = useState({ name:'', email:'', password:'', role:'patient' });
+  const submit = async e => {
+    e.preventDefault();
+    await api.post('/auth/register', form);
+    alert('Registered');
+  }
+  return (
+    <form onSubmit={submit}>
+      <input placeholder='name' value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
+      <input placeholder='email' value={form.email} onChange={e=>setForm({...form, email:e.target.value})} />
+      <input placeholder='password' type='password' value={form.password} onChange={e=>setForm({...form, password:e.target.value})} />
+      <select value={form.role} onChange={e=>setForm({...form, role:e.target.value})}>
+        <option value='patient'>Patient</option>
+        <option value='doctor'>Doctor</option>
+      </select>
+      <button>Sign up</button>
+    </form>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+sign in
+import React, { useState } from 'react';
+import api from '../api/api';
+
+export default function SignIn(){
+  const [form, setForm] = useState({ email:'', password:'' });
+  const submit = async e => {
+    e.preventDefault();
+    const r = await api.post('/auth/login', form);
+    localStorage.setItem('token', r.data.data.token);
+    alert('Logged in');
+  }
+  return (
+    <form onSubmit={submit}>
+      <input placeholder='email' value={form.email} onChange={e=>setForm({...form, email:e.target.value})} />
+      <input placeholder='password' type='password' value={form.password} onChange={e=>setForm({...form, password:e.target.value})} />
+      <button>Sign in</button>
+    </form>
+  );
+}
+
+
+
+
+
+
+
+
+
+doctor step.jsx
+import React, { useState } from 'react';
+import api from '../api/api';
+
+export default function DoctorSteps(){
+  const [step, setStep] = useState(1);
+  const [data, setData] = useState({});
+  const submit = async () => {
+    const token = localStorage.getItem('token');
+    await api.put(`/doctors/step/${step}`, data, { headers: { Authorization: `Bearer ${token}` } });
+    alert('Step saved');
+  }
+  return (
+    <div>
+      <h3>Step {step}</h3>
+      <textarea onChange={e=>setData({ ...data, text: e.target.value })}></textarea>
+      <button onClick={submit}>Save</button>
+      <div>
+        <button onClick={()=>setStep(s=>Math.max(1,s-1))}>Prev</button>
+        <button onClick={()=>setStep(s=>Math.min(6,s+1))}>Next</button>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+doctor list.jsx
+import React, { useEffect, useState } from 'react';
+import api from '../api/api';
+
+export default function DoctorList(){
+  const [doctors, setDoctors] = useState([]);
+  useEffect(()=>{ api.get('/doctors').then(r=>setDoctors(r.data.data)); },[]);
+  return (
+    <div>
+      <h2>Doctors</h2>
+      <ul>
+        {doctors.map(d=> (
+          <li key={d._id}>{d.doctor.name} - {d.qualifications?.join(', ')}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
